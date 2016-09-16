@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+</head>
+<body ng-app="FilesApp">
+    <h1>File manager</h1>
+    <div ng-controller="FileController">
+        <table border="1">
+            <tr>
+                <td>Files less than 10 Mb</td>
+                <td>Files beatween 10 Mb and 50 Mb</td>
+                <td>Files more than 100</td>
+                <td>Other files</td>
+            </tr>
+            <tr>
+                <td><span>{{CountFilesLess10}}</span></td>
+                <td><span>{{CountFilesBetween10and50}}</span></td>
+                <td><span>{{CountFilesMore100}}</span></td>
+                <td><span>{{CountFilesOther}}</span></td>
+            </tr>
+        </table>
+        <a>Current Path: <span>{{CurrentPath}}</span></a>
+        <p ng-click="OpenDirectory(back)">...</p>
+        <p ng-repeat="directory in directories" ng-click="OpenDirectory(directory)">{{directory}}</p>
+        <p ng-repeat="file in files">{{file}}</p>
+    </div>  
+</body>
+</html>
+
+<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>-->
+<script src="scripts/angular.min.js"></script>
+
+
+<script>
+    var app = angular.module("FilesApp", []);
+    var uri = '/api/file/';
+  
+    app.controller("FileController", function ($scope, $http) {
+        $scope.back = "goback";      //переменная для идентификации возврата в предыдущую папку
+        $http.get(uri).
+            success(function (data, status, headers, config) {
+                $scope.CurrentPath = data.Lists.FullPath;
+                $scope.directories = data.Lists.Directories;
+                $scope.files = data.Lists.Files;
+                $scope.CountFilesLess10 = data.Counts.FilesLess10;
+                $scope.CountFilesBetween10and50 = data.Counts.FilesBetween10and50;
+                $scope.CountFilesMore100 = data.Counts.FilesMore100;
+                $scope.CountFilesOther = data.Counts.FilesOther;
+            }).
+        error(function (data, status, headers, config) {
+            alert("error is BIG");
+        });
+
+        $scope.OpenDirectory = function (Name) {
+            $scope.Folder = new String(Name);
+            $http.post(uri, $scope.Folder).
+                success(function (data, status, headers, config) {
+                    $scope.CurrentPath = data.Lists.FullPath;
+                    $scope.directories = data.Lists.Directories;
+                    $scope.files = data.Lists.Files;
+                    $scope.CountFilesLess10 = data.Counts.FilesLess10;
+                    $scope.CountFilesBetween10and50 = data.Counts.FilesBetween10and50;
+                    $scope.CountFilesMore100 = data.Counts.FilesMore100;
+                    $scope.CountFilesOther = data.Counts.FilesOther;
+                }).
+                error(function (data, status, headers, config) {
+                    alert("Error");
+                });
+        }
+    });
+</script>
